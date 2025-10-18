@@ -1,1 +1,0 @@
-# Image-based-Bird-Species-Identification-using-Convolutional-Neural-Network
