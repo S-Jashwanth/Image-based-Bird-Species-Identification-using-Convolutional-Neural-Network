@@ -77,7 +77,7 @@ Example:
 ```python
 python prediction.py --image sample.jpg
 
-✅ 📊 Results
+###✅ **📊 Results**
 
 High classification accuracy on test data
 
@@ -85,9 +85,8 @@ Minimal overfitting due to augmentation and dropout layers
 
 Model successfully identifies unseen bird images
 
-(Include screenshots/graphs if available)
 
-✅ 💡 How to Run
+###✅ 💡 **How to Run**
 ✅ Install Dependencies
 pip install -r requirements.txt
 
@@ -97,14 +96,14 @@ python train.py
 ✅ Make Predictions
 python prediction.py
 
-✅ ✔ Features
+###✅ **✔ Features**
 
 ✅ End-to-end deep learning pipeline
 ✅ Fully automated image prediction system
 ✅ Expandable for more bird species
 ✅ Can be integrated with a mobile/web app
 
-✅ 📌 Future Improvements
+###✅ **📌 Future Improvements**
 
 Deploy as a web-based application
 
