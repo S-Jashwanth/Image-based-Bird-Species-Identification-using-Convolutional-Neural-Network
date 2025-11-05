@@ -1,0 +1,74 @@
+{% extends 'users/userbase.html' %}
+{% block contents %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #007bff; /* Blue background */
+            color: #ffffff; /* White text */
+        }
+
+        h1 {
+            color: #ffffff; /* White text */
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button[type="submit"] {
+            background-color: #0056b3; /* Slightly darker blue button */
+            color: #0e0000; /* White text */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #003e80; /* Darker blue on hover */
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        p {
+            color: #150101; /* White text */
+        }
+
+        img {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bird Classifier</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload and Classify</button>
+    </form>
+    
+    <h2>Classification Result:</h2>
+    <p>Predicted Bird: {{ bird }}</p>
+    <p>Accuracy: {{ probability }}%</p>
+    <!-- {% if output_image_path %}
+    <img src="{{ output_image_path }}" alt="Classified Bird Image">
+    {% endif %}  -->
+</body>
+</html>
+{% endblock %}
