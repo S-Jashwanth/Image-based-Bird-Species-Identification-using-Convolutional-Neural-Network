@@ -1,0 +1,37 @@
+{% extends 'admins/adminbase.html'%}
+{%block contents%}
+
+ <section id="intro">
+    <div class="intro-text">
+      <p><h3 align="center" style="color:orange;"> Machine Learning Results.</h3></p>
+        <table class="table">
+            <tr>
+                <th>S.NO</th>
+                <th>Algorithm</th>
+                <th>Accuracy</th>
+                <th>Precession</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Navie Bayes</td>
+                <td>{{lg.lg_accuracy}}</td>
+                <td>{{lg.lg_precision}}</td>
+                <td>{{lg.lg_recall}}</td>
+                <td>{{lg.lg_f1score}}</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>support vector machine</td>
+                <td>{{rf.rf_accuracy}}</td>
+                <td>{{rf.rf_precision}}</td>
+                <td>{{rf.rf_recall}}</td>
+                <td>{{rf.rf_f1score}}</td>
+            </tr>
+            
+        </table>
+
+    </div>
+  </section>
+{%endblock%}
