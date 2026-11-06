@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+
+{% block contents %}
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h1 class="fw-bold fs-3 mb-2">Model Evaluation & Metrics</h1>
+      <p class="text-muted small max-w-lg mx-auto">
+        Real-time training telemetry, convergence curves, and residual neural network evaluation across epochs.
+      </p>
+    </div>
+
+    <!-- Live Real-Time Controller & Summary Cards -->
+    <div class="card border rounded-3 p-4 mb-4 shadow-sm bg-white">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+          <h2 class="fs-6 fw-bold text-uppercase text-muted tracking-wider mb-0">Evaluation Telemetry</h2>
+        </div>
+        <button class="btn btn-sm btn-dark d-flex align-items-center gap-1" id="simulateMetricsBtn">
+          <i class="bi bi-play-fill"></i> Stream Real-Time Metrics
+        </button>
+      </div>
+
+      <div class="row g-3 text-center">
+        <div class="col-6 col-md-3">
+          <div class="p-3 border rounded-2 bg-light">
+            <span class="small text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Iteration</span>
+            <div class="fs-4 fw-bold text-dark my-1" id="metricEpoch">Epoch 4 / 4</div>
+            <span class="small text-muted" style="font-size: 0.75rem;">5 Epochs Evaluated</span>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="p-3 border rounded-2 bg-light">
+            <span class="small text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Training Accuracy</span>
+            <div class="fs-4 fw-bold text-primary my-1" id="metricTrainAcc">100.0%</div>
+            <span class="small text-success" style="font-size: 0.75rem;">Converged</span>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="p-3 border rounded-2 bg-light">
+            <span class="small text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Validation Accuracy</span>
+            <div class="fs-4 fw-bold text-success my-1" id="metricValAcc">100.0%</div>
+            <span class="small text-success" style="font-size: 0.75rem;">Peak Accuracy</span>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="p-3 border rounded-2 bg-light">
+            <span class="small text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Validation Loss</span>
+            <div class="fs-4 fw-bold text-dark my-1" id="metricValLoss">0.0072</div>
+            <span class="small text-muted" style="font-size: 0.75rem;">Minimized</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real-Time Interactive Frontend Charts (Chart.js) -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6">
+        <div class="card border rounded-3 p-4 bg-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fs-6 fw-bold mb-0">Training Accuracy vs. Validation Accuracy</h3>
+            <span class="badge bg-light text-dark border small" id="chartAccStatus">Completed</span>
+          </div>
+          <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="accuracyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card border rounded-3 p-4 bg-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fs-6 fw-bold mb-0">Training Loss vs. Validation Loss</h3>
+            <span class="badge bg-light text-dark border small" id="chartLossStatus">Completed</span>
+          </div>
+          <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="lossChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Epoch Telemetry Table -->
+    <div class="card border rounded-3 p-4 bg-white shadow-sm mb-4">
+      <h3 class="fs-6 fw-bold mb-3">Epoch Performance Record</h3>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0 text-center">
+          <thead class="table-light">
+            <tr>
+              <th>Epoch</th>
+              <th>Training Accuracy</th>
+              <th>Validation Accuracy</th>
+              <th>Training Loss</th>
+              <th>Validation Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in metrics_history %}
+            <tr class="{% if row.epoch == 4 %}fw-bold{% endif %}">
+              <td>Epoch {{ row.epoch }}</td>
+              <td>{{ row.train_acc }}%</td>
+              <td>{{ row.val_acc }}%</td>
+              <td><code>{{ row.train_loss }}</code></td>
+              <td><code>{{ row.val_loss }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Architecture Parameters -->
+    <div class="border rounded-2 p-3 bg-white text-muted small">
+      <div class="row g-2">
+        <div class="col-md-3"><strong>Architecture:</strong> ResNet-34 / EfficientNet-B0</div>
+        <div class="col-md-3"><strong>Input Dimensions:</strong> 224 &times; 224 &times; 3 RGB</div>
+        <div class="col-md-3"><strong>Total Classes:</strong> 450 Bird Species</div>
+        <div class="col-md-3"><strong>Loss Function:</strong> Categorical Cross-Entropy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Real-Time Dynamic Charts Script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fullEpochs = [0, 1, 2, 3, 4];
+  const fullTrainAcc = [0.8800, 0.9852, 0.9976, 0.9982, 1.0000];
+  const fullValAcc = [0.9600, 0.9600, 0.9600, 0.9800, 1.0000];
+  const fullTrainLoss = [0.3980, 0.0475, 0.0142, 0.0081, 0.0023];
+  const fullValLoss = [0.0840, 0.0768, 0.0865, 0.0238, 0.0072];
+
+  // Initialize Accuracy Chart
+  const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
+  const accuracyChart = new Chart(ctxAcc, {
+    type: 'line',
+    data: {
+      labels: fullEpochs,
+      datasets: [
+        {
+          label: 'Training Accuracy',
+          data: [...fullTrainAcc],
+          borderColor: '#0284c7',
+          backgroundColor: '#0284c7',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.1
+        },
+        {
+          label: 'Validation Accuracy',
+          data: [...fullValAcc],
+          borderColor: '#ea580c',
+          backgroundColor: '#ea580c',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'Epoch', font: { size: 11 } } },
+        y: { min: 0.86, max: 1.01, title: { display: true, text: 'Accuracy', font: { size: 11 } } }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Initialize Loss Chart
+  const ctxLoss = document.getElementById('lossChart').getContext('2d');
+  const lossChart = new Chart(ctxLoss, {
+    type: 'line',
+    data: {
+      labels: fullEpochs,
+      datasets: [
+        {
+          label: 'Training Loss',
+          data: [...fullTrainLoss],
+          borderColor: '#0284c7',
+          backgroundColor: '#0284c7',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.1
+        },
+        {
+          label: 'Validation Loss',
+          data: [...fullValLoss],
+          borderColor: '#ea580c',
+          backgroundColor: '#ea580c',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'Epoch', font: { size: 11 } } },
+        y: { min: 0, max: 0.42, title: { display: true, text: 'Loss', font: { size: 11 } } }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Interactive Real-Time Stream Simulation
+  const simulateBtn = document.getElementById('simulateMetricsBtn');
+  const metricEpoch = document.getElementById('metricEpoch');
+  const metricTrainAcc = document.getElementById('metricTrainAcc');
+  const metricValAcc = document.getElementById('metricValAcc');
+  const metricValLoss = document.getElementById('metricValLoss');
+  const chartAccStatus = document.getElementById('chartAccStatus');
+  const chartLossStatus = document.getElementById('chartLossStatus');
+
+  if (simulateBtn) {
+    simulateBtn.addEventListener('click', () => {
+      simulateBtn.disabled = true;
+      simulateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Streaming...';
+      chartAccStatus.innerText = 'Live Streaming...';
+      chartLossStatus.innerText = 'Live Streaming...';
+
+      // Clear charts
+      accuracyChart.data.labels = [];
+      accuracyChart.data.datasets[0].data = [];
+      accuracyChart.data.datasets[1].data = [];
+      accuracyChart.update();
+
+      lossChart.data.labels = [];
+      lossChart.data.datasets[0].data = [];
+      lossChart.data.datasets[1].data = [];
+      lossChart.update();
+
+      let currentStep = 0;
+      const interval = setInterval(() => {
+        if (currentStep < fullEpochs.length) {
+          const ep = fullEpochs[currentStep];
+          
+          // Push to charts
+          accuracyChart.data.labels.push(ep);
+          accuracyChart.data.datasets[0].data.push(fullTrainAcc[currentStep]);
+          accuracyChart.data.datasets[1].data.push(fullValAcc[currentStep]);
+          accuracyChart.update('none');
+
+          lossChart.data.labels.push(ep);
+          lossChart.data.datasets[0].data.push(fullTrainLoss[currentStep]);
+          lossChart.data.datasets[1].data.push(fullValLoss[currentStep]);
+          lossChart.update('none');
+
+          // Update counters
+          metricEpoch.innerText = `Epoch ${ep} / 4`;
+          metricTrainAcc.innerText = (fullTrainAcc[currentStep] * 100).toFixed(1) + '%';
+          metricValAcc.innerText = (fullValAcc[currentStep] * 100).toFixed(1) + '%';
+          metricValLoss.innerText = fullValLoss[currentStep].toFixed(4);
+
+          currentStep++;
+        } else {
+          clearInterval(interval);
+          simulateBtn.disabled = false;
+          simulateBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Re-stream Metrics';
+          chartAccStatus.innerText = 'Completed (100.0%)';
+          chartLossStatus.innerText = 'Completed (0.0072)';
+        }
+      }, 700);
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block contents %}
+<section class="hero-section">
+  <div class="container">
+    <h1 class="hero-title">Bird Species Identification</h1>
+    <p class="hero-subtitle">
+      Upload, drag and drop, or paste an image directly from your clipboard to identify the species across 450 bird classes.
+    </p>
+
+    <!-- Classifier Card -->
+    <div class="classifier-card text-start">
+      <form id="birdClassifyForm" method="post" action="/classify/" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Drop & Paste Zone -->
+        <div class="drop-zone" id="dropZone" tabindex="0">
+          <div class="drop-zone-icon">
+            <i class="bi bi-cloud-arrow-up"></i>
+          </div>
+          <div class="drop-zone-title">Drag & drop or paste bird image</div>
+          <div class="drop-zone-desc">Supports JPG, PNG, WEBP &bull; Paste with <kbd>Ctrl+V</kbd></div>
+          
+          <div class="d-flex justify-content-center gap-2 mt-3">
+            <button type="button" class="btn-upload-trigger" id="uploadTrigger">
+              <i class="bi bi-folder2-open me-1"></i> Browse File
+            </button>
+            <button type="button" class="btn-upload-trigger" id="clipboardTrigger">
+              <i class="bi bi-clipboard me-1"></i> Paste Image
+            </button>
+          </div>
+          <input type="file" name="image" id="birdFileInput" class="d-none" accept="image/*">
+        </div>
+
+        <!-- Image Preview Container -->
+        <div class="preview-container" id="previewContainer">
+          <img src="" alt="Selected bird" id="previewImage" class="preview-image">
+          <div class="preview-controls">
+            <button type="button" class="btn-secondary-custom" id="removeImageBtn">
+              <i class="bi bi-x-circle"></i> Clear
+            </button>
+            <button type="submit" class="btn-primary-custom" id="classifyBtn">
+              <i class="bi bi-search"></i> Identify Species
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-box" id="loadingBox">
+          <div class="spinner-pulse"></div>
+          <div class="loading-text">Analyzing Bird Image...</div>
+          <div class="loading-subtext" id="loadingSubtext">Evaluating deep neural representations...</div>
+        </div>
+
+        <!-- Result Box -->
+        <div class="result-box" id="resultBox">
+          <div class="result-header">
+            <span class="result-label">Identified Species</span>
+            <span class="badge bg-light text-dark border px-2 py-1" id="engineBadge">CNN Inferred</span>
+          </div>
+
+          <h2 class="result-bird-name" id="resultBirdName">-</h2>
+
+          <div class="confidence-bar-wrapper">
+            <div class="confidence-bar-label">
+              <span>Confidence</span>
+              <span id="resultConfidence">0%</span>
+            </div>
+            <div class="confidence-progress">
+              <div class="confidence-bar-fill" id="resultBarFill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="top-candidates-title">Top Predicted Candidates</div>
+          <div id="candidatesList"></div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+            <a id="resultGoogleLink" href="https://www.google.com" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark">
+              <i class="bi bi-google me-1"></i> Search on Google
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('removeImageBtn').click()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Identify Another
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Minimal System Overview -->
+    <div class="row g-3 text-start justify-content-center max-w-lg mx-auto">
+      <div class="col-sm-4">
+        <div class="border rounded-2 p-3 bg-white text-center">
+          <div class="small text-muted mb-1">Supported Classes</div>
+          <div class="fs-5 fw-bold text-dark">450 Species</div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="border rounded-2 p-3 bg-white text-center">
+          <div class="small text-muted mb-1">Architecture</div>
+          <div class="fs-5 fw-bold text-dark">ResNet-34 CNN</div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="border rounded-2 p-3 bg-white text-center">
+          <div class="small text-muted mb-1">Input Dimension</div>
+          <div class="fs-5 fw-bold text-dark">224 &times; 224 RGB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Species Preview -->
+<section class="py-4 border-top bg-white">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="fs-6 fw-bold text-uppercase text-muted tracking-wider mb-0">Common Species Examples</h3>
+      <a href="/species/" class="small text-decoration-none">View All 450 &rarr;</a>
+    </div>
+
+    <div class="row g-2">
+      {% for bird in sample_birds %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="border rounded-2 p-2 bg-light text-center">
+          <div class="fw-semibold small text-truncate">{{ bird.name }}</div>
+          <a href="https://www.google.com/search?q={{ bird.name|urlencode }}+bird" target="_blank" rel="noopener noreferrer" class="small text-muted text-decoration-none" style="font-size: 0.75rem;">
+            Google &nearr;
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

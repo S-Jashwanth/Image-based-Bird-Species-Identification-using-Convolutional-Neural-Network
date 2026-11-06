@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django database & runtime artifacts
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Uploaded test media (preserves directory structure via .gitkeep)
+media/output/*
+!media/output/.gitkeep
+
+# Pretrained model weights
+# GitHub recommends Git LFS for binary files > 50MB.
+# If pushing without Git LFS, uncomment the lines below:
+# media/trained-models/*.pth
+# media/trained-models/*.h5
+!media/trained-models/.gitkeep
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Operating System & IDE junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

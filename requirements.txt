@@ -1,0 +1,14 @@
+# Core Web Framework
+Django>=4.2,<6.0
+asgiref>=3.8.0
+
+# Image & Data Processing
+Pillow>=10.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Deep Learning Frameworks
+# Compatible with bird-resnet34best.pth (PyTorch) and saved_model.h5 (Keras/TensorFlow)
+torch>=2.0.0
+torchvision>=0.15.0
+tensorflow>=2.15.0

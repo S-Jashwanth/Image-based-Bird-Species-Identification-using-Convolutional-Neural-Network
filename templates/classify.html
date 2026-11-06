@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block contents %}
+<section class="py-5">
+  <div class="container text-center">
+    <h1 class="fw-bold fs-3 mb-2">Identify Bird Species</h1>
+    <p class="text-muted small mb-4">Upload an image file or paste directly from your clipboard.</p>
+
+    <div class="classifier-card text-start">
+      <form id="birdClassifyForm" method="post" action="/classify/" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Drop & Paste Zone -->
+        <div class="drop-zone" id="dropZone" tabindex="0">
+          <div class="drop-zone-icon">
+            <i class="bi bi-cloud-arrow-up"></i>
+          </div>
+          <div class="drop-zone-title">Drop or paste bird image</div>
+          <div class="drop-zone-desc">JPG, PNG, WEBP &bull; Paste with <kbd>Ctrl+V</kbd></div>
+          
+          <div class="d-flex justify-content-center gap-2 mt-3">
+            <button type="button" class="btn-upload-trigger" id="uploadTrigger">Browse File</button>
+            <button type="button" class="btn-upload-trigger" id="clipboardTrigger">Paste Image</button>
+          </div>
+          <input type="file" name="image" id="birdFileInput" class="d-none" accept="image/*">
+        </div>
+
+        <!-- Image Preview Container -->
+        <div class="preview-container" id="previewContainer">
+          <img src="" alt="Selected bird" id="previewImage" class="preview-image">
+          <div class="preview-controls">
+            <button type="button" class="btn-secondary-custom" id="removeImageBtn">Clear</button>
+            <button type="submit" class="btn-primary-custom" id="classifyBtn">Identify Species</button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-box" id="loadingBox">
+          <div class="spinner-pulse"></div>
+          <div class="loading-text">Analyzing Bird Image...</div>
+          <div class="loading-subtext" id="loadingSubtext">Evaluating deep neural representations...</div>
+        </div>
+
+        <!-- Result Box -->
+        <div class="result-box" id="resultBox">
+          <div class="result-header">
+            <span class="result-label">Identified Species</span>
+            <span class="badge bg-light text-dark border px-2 py-1" id="engineBadge">CNN Inferred</span>
+          </div>
+
+          <h2 class="result-bird-name" id="resultBirdName">-</h2>
+
+          <div class="confidence-bar-wrapper">
+            <div class="confidence-bar-label">
+              <span>Confidence</span>
+              <span id="resultConfidence">0%</span>
+            </div>
+            <div class="confidence-progress">
+              <div class="confidence-bar-fill" id="resultBarFill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="top-candidates-title">Top Predicted Candidates</div>
+          <div id="candidatesList"></div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+            <a id="resultGoogleLink" href="https://www.google.com" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark">
+              <i class="bi bi-google me-1"></i> Search on Google
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('removeImageBtn').click()">
+              Identify Another
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
